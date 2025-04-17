@@ -4,6 +4,9 @@
 #include <SimpleTimer.h>
 #include <EEPROM.h>
 #include "GravityTDS.h"
+#include <SoftwareSerial.h>
+
+SoftwareSerial outSerial(10,11);
 
 // Initialize SHT20 Sensor
 DFRobot_SHT20 sht20(&Wire, SHT20_I2C_ADDR);
@@ -27,6 +30,7 @@ float calibration_value = 26.34 - 0.5;
 int buffer_arr[10], temp;
 unsigned long int avgval;
 float ph_act;
+String outString;
 
 // User adjustable
 float phThreshold = 5.5;
@@ -40,7 +44,8 @@ float k = 0.1; // Decay constant
 float C0 = 10.0; // Initial concentration
 
 void setup() {
-    Serial.begin(115200);
+    Serial.begin(9600);
+    outSerial.begin(9600);
     Wire.begin();
 
     // Initialize LCD
@@ -154,4 +159,6 @@ void displayData() {
     } else {
       digitalWrite(MotorPin, LOW);
     }
+    outString = String(temperature) + ',' + String(tdsValue) + ',' + String(ecValue) + ',' + String(ph_act);
+    outSerial.println(outString);
 }
