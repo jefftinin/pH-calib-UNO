@@ -45,7 +45,7 @@ float C0 = 10.0; // Initial concentration
 
 void setup() {
     Serial.begin(9600);
-    outSerial.begin(9600);
+    outSerial.begin(19200);
     Wire.begin();
 
     // Initialize LCD
@@ -72,10 +72,16 @@ void setup() {
     digitalWrite(MotorPin, LOW);
 
     timer.setInterval(1000L, displayData);
+    timer.setInterval(5000L, sendData);
 }
 
 void loop() {
     timer.run();
+}
+
+void sendData() {
+    outString = String(temperature) + ',' + String(tdsValue) + ',' + String(ecValue) + ',' + String(ph_act);
+    outSerial.println(outString);
 }
 
 void displayData() {
@@ -159,6 +165,5 @@ void displayData() {
     } else {
       digitalWrite(MotorPin, LOW);
     }
-    outString = String(temperature) + ',' + String(tdsValue) + ',' + String(ecValue) + ',' + String(ph_act);
-    outSerial.println(outString);
+    
 }
