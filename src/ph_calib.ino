@@ -23,6 +23,7 @@ GravityTDS gravityTds;
 float temperature = 25;
 float tdsValue = 0;
 float ecValue = 0;
+float ec25Value = 0;
 
 // pH sensor variables
 SimpleTimer timer;
@@ -36,12 +37,13 @@ String outString;
 float phThreshold = 5.5;
 float ecThreshold = 2.0;
 float tempThreshold = 35;
+
 float concentrationThreshold = 1.0;
 
 // First-order decay model threshold logic (example model)
 // Adjust these coefficients to match the decay characteristics of your herbicide
-float k = 0.1; // Decay constant
-float C0 = 10.0; // Initial concentration
+//float k = 0.1; // Decay constant
+//float C0 = 10.0; // Initial concentration
 
 void setup() {
     Serial.begin(9600);
@@ -95,6 +97,10 @@ void displayData() {
     tdsValue = gravityTds.getTdsValue();
     ecValue = tdsValue * 1.0; // Simple conversion factor
 
+    ec25Value = ecValue/(1+0.019*(temperature - 25.0));
+
+
+
     // Read pH sensor values
     for (int i = 0; i < 10; i++) {
         buffer_arr[i] = analogRead(A0);
@@ -122,6 +128,8 @@ void displayData() {
     float volt = (float)avgval * 5.0 / 1024.0 / 6.0;
     ph_act = -5.70 * volt + calibration_value;
 
+    // COncentration
+    float conc = ph_act ;
     // Print sensor data to Serial Monitor
     Serial.print("Time:");
     Serial.print(millis() / 1000);
@@ -157,11 +165,12 @@ void displayData() {
     lcd.print("S/m");
 
     float t = millis() / 1000.0;
-    float concentration = C0 * exp(-k * t);
+    //float concentration = C0 * exp(-k * t);
     
     // Simulated threshold using pH, EC, and temp (replace with your actual condition)
-    if ((ph_act < phThreshold || ecValue > ecThreshold || temperature > tempThreshold) && concentration > concentrationThreshold) {
-        digitalWrite(MotorPin, HIGH);
+    //if ((ph_act < phThreshold || ecValue > ecThreshold || temperature > tempThreshold) && concentration > concentrationThreshold) {
+    if ((ph_act < phThreshold || ecValue > ecThreshold || temperature > tempThreshold)) {
+      digitalWrite(MotorPin, HIGH);
     } else {
       digitalWrite(MotorPin, LOW);
     }
